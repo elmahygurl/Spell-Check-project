@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct
+{
+    char word[30];
+    struct node* left;
+    struct node* right;
+} node;
+node* newNode(char * str)
+{
+    node *n=malloc(sizeof(node));
+    strcpy(n->word,str);
+    n->left=n->right=NULL;
+    return n;
+}
+node* insertNode(node* root, char* str)
+{
+    if (!root)
+        root=newNode(str);
+    else if (strcasecmp(str,root->word)<0)
+        root->left=insertNode(root->left,str);
+    else if (strcasecmp(str,root->word)>0)
+        root->right=insertNode(root->right,str);
+    return root;
+}
+node* load(node *root)
+{
+    FILE *fp;
+    fp=fopen("EN-US-Dictionary.txt","r");
+    if (!fp)
+    {
+        exit(1);
+    }
+    char str[30];
+    while (!feof(fp))
+    {
+        fgets(str, 29, fp);
+        root=insertNode(root,str);
+    }
+    fclose(fp);
+    return root;
+}
+int countNodes(node* root)
+{
+    if (!root)
+        return 0;
+    else
+        return 1+countNodes(root->left)+countNodes(root->right);
+}
+int max(int x, int y)
+{
+ return x>y?x:y;
+}
+int getHeight(node* root)
+{
+    if (!root)
+        return -1;
+    else return 1+max(getHeight(root->left),getHeight(root->right));
+}
+/*void deserialize(char *text)
+{
+
+}*/
+int main()
+{
+    node *root=NULL;
+    root=load(root);
+    if (root)
+        printf("Dictionary was successfully loaded\n");
+    else printf("Error loading dictionary");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Size=%d\n",countNodes(root));
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Height=%d\n",getHeight(root));
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Enter a sentence: \n");
+    char text[500];
+    gets(text);
+   // deserialize(text);
+    return 0;
+}
