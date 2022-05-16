@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 typedef struct
 {
-    char word[30];
+    char* word[30];
     struct node* left;
     struct node* right;
 } node;
@@ -35,7 +36,7 @@ node* load(node *root)
     char str[30];
     while (!feof(fp))
     {
-        fgets(str, 29, fp);
+        fscanf(fp, "%s", str);
         root=insertNode(root,str);
     }
     fclose(fp);
@@ -58,12 +59,40 @@ int getHeight(node* root)
         return -1;
     else return 1+max(getHeight(root->left),getHeight(root->right));
 }
-/*void deserialize(char *text)
-{
 
-}*/
-int main()
+int SearchWord (node* root,char * Word)
 {
+    int comparison=0, found=0;
+    while (root)
+    {
+    comparison = strcasecmp(Word,root->word);
+    if (!comparison){
+           found = 1;
+           break;
+    }
+    else if (comparison<0)
+        root=root->left;
+    else if (comparison>0)
+        root=root->right;
+    }
+    if (found)
+        printf("%s - correct word\n",Word);
+    else printf("%s - incorrect word, Suggestions\n", Word);
+    return found;
+}
+
+void SearchSentence (node* root, char* text)
+{
+    char *token = strtok(text, " \n");
+    while (token)
+    {
+        SearchWord(root, token);
+        token = strtok(NULL, " \n");
+    }
+}
+
+int main()
+{   int check=0;
     node *root=NULL;
     root=load(root);
     if (root)
@@ -76,8 +105,7 @@ int main()
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Enter a sentence: \n");
     char text[500];
-    gets(text);
-   // deserialize(text);
+    fgets(text,500,stdin);
+    SearchSentence(root,text);
     return 0;
 }
-// trying to change something
