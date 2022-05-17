@@ -25,23 +25,29 @@ node* insertNode(node* root, char* str)
         root->right=insertNode(root->right,str);
     return root;
 }
-node* load(node *root)
+int max(int x, int y)
 {
-    FILE *fp;
-    fp=fopen("EN-US-Dictionary.txt","r");
-    if (!fp)
-    {
-        exit(1);
-    }
-    char str[30];
-    while (!feof(fp))
-    {
-        fscanf(fp, "%s", str);
-        root=insertNode(root,str);
-    }
-    fclose(fp);
-    return root;
+ return x>y?x:y;
 }
+
+node* GetMin (node* root)
+{
+    if (!root)
+        return NULL;
+    else if (!root->left)
+        return root;
+    else return GetMin(root->left);
+}
+
+node* GetMax (node* root)
+{
+    if (!root)
+        return NULL;
+    else if (!root->right)
+        return root;
+    else return GetMax(root->right);
+}
+
 int countNodes(node* root)
 {
     if (!root)
@@ -49,10 +55,7 @@ int countNodes(node* root)
     else
         return 1+countNodes(root->left)+countNodes(root->right);
 }
-int max(int x, int y)
-{
- return x>y?x:y;
-}
+
 int getHeight(node* root)
 {
     if (!root)
@@ -60,25 +63,57 @@ int getHeight(node* root)
     else return 1+max(getHeight(root->left),getHeight(root->right));
 }
 
-int SearchWord (node* root,char * Word)
+
+node* load(node *root)
 {
-    int comparison=0, found=0;
-    while (root)
+    FILE *fp;
+    fp=fopen("EN-US-Dictionary.txt","r");
+    if (!fp)
     {
-    comparison = strcasecmp(Word,root->word);
+        printf("Error loading dictionary");
+        exit(1);
+    }else
+      printf("Dictionary was successfully loaded\n");
+    char str[30];
+    while (!feof(fp))
+    {
+        fscanf(fp, "%s", str);
+        root=insertNode(root,str);
+    }
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Size=%d\n",countNodes(root));
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Height=%d\n",getHeight(root));
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Enter a sentence: \n");
+    fclose(fp);
+    return root;
+}
+
+
+
+
+void SearchWord (node* root,char * Word)
+{
+    node *currentNode = root;
+    node *lastNodeVisited = root;
+    int comparison=0, found=0;
+    while (currentNode)
+    {
+    lastNodeVisited = currentNode;
+    comparison = strcasecmp(Word,currentNode->word);
     if (!comparison){
            found = 1;
            break;
     }
     else if (comparison<0)
-        root=root->left;
+        currentNode=currentNode->left;
     else if (comparison>0)
-        root=root->right;
+        currentNode=currentNode->right;
     }
     if (found)
         printf("%s - correct word\n",Word);
-    else printf("%s - incorrect word, Suggestions\n", Word);
-    return found;
+    else printf("%s - incorrect word, Suggestions %s\n", Word, lastNodeVisited->word);
 }
 
 void SearchSentence (node* root, char* text)
@@ -92,18 +127,9 @@ void SearchSentence (node* root, char* text)
 }
 
 int main()
-{   int check=0;
+{
     node *root=NULL;
     root=load(root);
-    if (root)
-        printf("Dictionary was successfully loaded\n");
-    else printf("Error loading dictionary");
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Size=%d\n",countNodes(root));
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Height=%d\n",getHeight(root));
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Enter a sentence: \n");
     char text[500];
     fgets(text,500,stdin);
     SearchSentence(root,text);
