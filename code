@@ -89,10 +89,48 @@ node* load(node *root)
     fclose(fp);
     return root;
 }
-
-
-
-
+node *getpredecessor(node *root,char *word)
+{
+    if (!root)
+        return NULL;
+    node *successor=NULL;
+    node *current=root;
+    while (current&& strcasecmp(word,current->word))
+    {
+        if (strcasecmp(current->word,word)<0)
+        {
+            successor=current;
+            current=current->right;
+        }
+        else current= current->left;
+    }
+    if (!current)
+        return successor;
+    if (current && current->left)
+        successor=GetMax(current->left);
+    return successor;
+}
+node *getsuccessor(node *root,char *word)
+{
+    if (!root)
+        return NULL;
+    node *successor=NULL;
+    node *current=root;
+    while (current&& strcasecmp(word,current->word))
+    {
+        if (strcasecmp(current->word,word)>0)
+        {
+            successor=current;
+            current=current->left;
+        }
+        else current= current->right;
+    }
+    if (!current)
+        return successor;
+    if (current && current->right)
+        successor=GetMin(current->right);
+    return successor;
+}
 void SearchWord (node* root,char * Word)
 {
     node *currentNode = root;
@@ -113,7 +151,7 @@ void SearchWord (node* root,char * Word)
     }
     if (found)
         printf("%s - correct word\n",Word);
-    else printf("%s - incorrect word, Suggestions %s\n", Word, lastNodeVisited->word);
+    else printf("%s - incorrect word, Suggestions:%s  %s  %s\n", Word, lastNodeVisited->word,getpredecessor(root,Word)->word,getsuccessor(root,Word)->word);
 }
 
 void SearchSentence (node* root, char* text)
