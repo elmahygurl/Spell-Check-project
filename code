@@ -108,8 +108,8 @@ node *getPredecessor(node *root,char *word, node* current)
     if (!current)
         return current;
     int comp;
-    if (current->right)
-        return GetMax(current->right);
+    if (current->left)
+        return GetMax(current->left);
     else
     {
         pre = NULL;
@@ -132,7 +132,6 @@ node *getsuccessor(node *root,char *word, node* current)
 {   node * successor;
     if (!current)
         return current;
-    int comp;
     if (current->right)
         return GetMin(current->right);
     else
@@ -171,7 +170,7 @@ void SearchWord (node* root,char * Word)
     }
     if (found)
         printf("%s - correct word\n",Word);
-    else printf("%s - incorrect word, Suggestions:%s  %s  %s\n", Word, lastNodeVisited->word,getPredecessor(root,Word,lastNodeVisited)->word,getsuccessor(trialNode,Word,lastNodeVisited)->word);
+    else printf("%s - incorrect word, Suggestions:%s  %s  %s\n", Word, lastNodeVisited->word,getsuccessor(trialNode,Word,lastNodeVisited)->word,getPredecessor(root,Word,lastNodeVisited)->word);
 }
 
 void SearchSentence (node* root, char* text)
