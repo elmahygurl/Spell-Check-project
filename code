@@ -89,51 +89,71 @@ node* load(node *root)
     fclose(fp);
     return root;
 }
-node *getpredecessor(node *root,char *word)
+node *getMin(node *n)
 {
-    if (!root)
-        return NULL;
-    node *successor=NULL;
-    node *current=root;
-    while (current&& strcasecmp(word,current->word))
-    {
-        if (strcasecmp(current->word,word)<0)
-        {
-            successor=current;
-            current=current->right;
-        }
-        else current= current->left;
-    }
-    if (!current)
-        return successor;
-    if (current && current->left)
-        successor=GetMax(current->left);
-    return successor;
+    if (n == NULL || n->left == NULL)
+        return n;
+    return getMin(n->left);
 }
-node *getsuccessor(node *root,char *word)
+
+node *getMax(node *n)
 {
-    if (!root)
-        return NULL;
-    node *successor=NULL;
-    node *current=root;
-    while (current&& strcasecmp(word,current->word))
-    {
-        if (strcasecmp(current->word,word)>0)
-        {
-            successor=current;
-            current=current->left;
-        }
-        else current= current->right;
-    }
+    if (n == NULL || n->right == NULL)
+        return n;
+    return getMax(n->right);
+}
+
+node *getPredecessor(node *root,char *word, node* current)
+{   node * pre;
     if (!current)
-        return successor;
-    if (current && current->right)
-        successor=GetMin(current->right);
+        return current;
+    int comp;
+    if (current->right)
+        return GetMax(current->right);
+    else
+    {
+        pre = NULL;
+        node* ancestor = root;
+        while (ancestor!= current)
+        {
+            if (strcasecmp(ancestor->word, current->word)>0)
+            {
+                ancestor= ancestor->left;
+            }else
+            {
+                pre =ancestor;
+                ancestor=ancestor->right;
+             }
+        }
+    }
+    return pre;
+}
+node *getsuccessor(node *root,char *word, node* current)
+{   node * successor;
+    if (!current)
+        return current;
+    int comp;
+    if (current->right)
+        return GetMin(current->right);
+    else
+    {
+        successor = NULL;
+        node* ancestor = root;
+        while (ancestor!= current)
+        {
+            if (strcasecmp(ancestor->word, current->word)>0)
+            {
+                successor =ancestor;
+                ancestor= ancestor->left;
+            }else ancestor=ancestor->right;
+        }
+    }
     return successor;
 }
 void SearchWord (node* root,char * Word)
 {
     node *currentNode = root;
+    node * trialNode = root;
     node *lastNodeVisited = root;
     int comparison=0, found=0;
     while (currentNode)
@@ -151,7 +171,7 @@ void SearchWord (node* root,char * Word)
     }
     if (found)
         printf("%s - correct word\n",Word);
-    else printf("%s - incorrect word, Suggestions:%s  %s  %s\n", Word, lastNodeVisited->word,getpredecessor(root,Word)->word,getsuccessor(root,Word)->word);
+    else printf("%s - incorrect word, Suggestions:%s  %s  %s\n", Word, lastNodeVisited->word,getPredecessor(root,Word,lastNodeVisited)->word,getsuccessor(trialNode,Word,lastNodeVisited)->word);
 }
 
 void SearchSentence (node* root, char* text)
